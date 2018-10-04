@@ -36,20 +36,21 @@ export default class Home extends React.Component {
     });
   }
 
-  _dumpValues(){
+  _multiGetItem(){
     AsyncStorage.getAllKeys((err, keys) => {
-      console.log(keys);
+      AsyncStorage.multiGet(keys, (err, stores) => {
+        stores.map((result, i, store) => {
+          // get at each store's key/value so you can work with it
+          let key = store[i][0];
+          let value01 = store[i][1];
+
+          console.log(key+', '+value01);
+        });
+      });
     });
   }
 
-  _getItem(){
-    let primaryId=this.state.today;
-    // AsyncStorage.getItem(primaryId,(err, value) => {
-    //   // console.log(value);
-    // });
-    // if(primaryId){
-    //   console.log(primaryId+' is Exist!');
-    // }
+  _getItem(primaryId){
     const value=AsyncStorage.getItem(primaryId);
     if(value!=null){
       console.log(value);
@@ -57,16 +58,23 @@ export default class Home extends React.Component {
 
   }
 
-  async _getStorageValue(){
-    let primaryId=this.state.today;
-    primaryId=JSON.stringify(primaryId);
+  async _getStorageValue(primaryId){
     var value = await AsyncStorage.getItem(primaryId);
     console.log(value);
   }
 
-  _getItemYesterday(){
-    AsyncStorage.getItem('20181002',(err, value) => {
-      console.log(value);
+  _getItemYesterday(primaryId){
+    AsyncStorage.getItem(primaryId,(err, value) => {
+      obj = JSON.parse(value);
+      console.log(obj.weight);
+    });
+  }
+
+  async _ckeckItem(primaryId){
+    await AsyncStorage.getItem(primaryId,(err, values) => {
+      values.map((values, i, value) => {
+        console.log(value[i][0]+', '+value[i][1]);
+      });
     });
   }
 
@@ -77,22 +85,22 @@ export default class Home extends React.Component {
 
 
       // Check AsyncStorage for value today
-      let primaryId=this.state.today,
+      let primaryId=JSON.stringify(this.state.today),
           beginningOfMounth=new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           endOfMounth=new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-      // console.log(primaryId+', '+beginningOfMounth+', '+endOfMounth);
-      // get pageIndex
-      // AsyncStorage.getItem(primaryId, (err, result) => {
-      //   console.log(result);
-      // });
-      AsyncStorage.getItem(primaryId, (err, result) => {
-        console.log(result);
+
+      // initially retrieve value that already existing when openning screen
+      AsyncStorage.getItem(primaryId, (err, value) => {
+        if(value!==null){
+          let parsedValue=JSON.parse(value);
+          this.setState({
+            initialWeigth: parsedValue.weight,
+            initialInnerFat: parsedValue.innerFat
+          });
+        }
       });
-      // check today whether beginning or end of mounth
-      // if(primaryId)
-      // AsyncStorage.getItem(primaryId, (err, result) => {
-      //   console.log(result);
-      // });
+
+      // console.log(this.state.initialWeigth+', '+this.state.initialInnerFat);
 
 
 
@@ -127,9 +135,17 @@ export default class Home extends React.Component {
 
                 {/* Number input section */}
                 <View style={styles.main}>
-                    <NumberInput text={'体重'} today={this.state.today}></NumberInput>
+                    <NumberInput
+                      text={'体重'}
+                      today={this.state.today}
+                      initialWeigth={this.state.initialWeigth}>
+                    </NumberInput>
 
-                    <NumberInput text={'体脂肪'} today={this.state.today}></NumberInput>
+                    <NumberInput
+                      text={'体脂肪'}
+                      today={this.state.today}
+                      initialInnerFat={this.state.initialInnerFat}>
+                    </NumberInput>
 
                 </View>
 
@@ -147,18 +163,22 @@ export default class Home extends React.Component {
 
                 </View>
 
-                <View style={styles.systemButton}>
+                <View style={styles.systemButtonContainer}>
 
-                  <IconButton onPress={()=>this._removeItem(this.state.today)}>
-                    <Icon name={'delete-outline'} style={styles.buttonIcon}></Icon>
+                  <IconButton onPress={()=>this._removeItem(primaryId)}>
+                    <Icon name={'delete-outline'} style={styles.systemButtonIcon}></Icon>
                   </IconButton>
 
-                  <IconButton onPress={()=>this._dumpValues()}>
-                    <Icon name={'playlist-check'} style={styles.buttonIcon}></Icon>
+                  <IconButton onPress={()=>this._multiGetItem()}>
+                    <Icon name={'playlist-check'} style={styles.systemButtonIcon}></Icon>
                   </IconButton>
 
-                  <IconButton onPress={()=>this._getStorageValue()}>
-                    <Icon name={'check'} style={styles.buttonIcon}></Icon>
+                  <IconButton onPress={()=>this._getItemYesterday(primaryId)}>
+                    <Icon name={'check'} style={styles.systemButtonIcon}></Icon>
+                  </IconButton>
+
+                  <IconButton onPress={()=>this._ckeckItem(primaryId)}>
+                    <Icon name={'format-list-numbers'} style={styles.systemButtonIcon}></Icon>
                   </IconButton>
 
                 </View>
@@ -212,9 +232,14 @@ const styles = StyleSheet.create({
     paddingRight: 25,
     paddingLeft: 25,
   },
-  systemButton:{
+  systemButtonIcon:{
+    fontSize: 30,
+    color: '#fff',
+  },
+  systemButtonContainer:{
     position: 'absolute',
     flexDirection: 'row',
+    justifyContent: 'space-around',
     width: '100%',
     height: 60,
     bottom: 80,

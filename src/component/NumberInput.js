@@ -32,10 +32,10 @@ export default class NumberInput extends Component {
 
 
   /*-------------- Store values --------------*/
-  storeData(numberFromInput, unit){
+  async storeData(numberFromInput, unit){
 
     // console.log(state.today+','+numberFromInput);
-    let primaryId = this.props.today,
+    let primaryId = JSON.stringify(this.props.today),
         storeValue={},
         key='';
     if(unit==='体重'){
@@ -46,18 +46,32 @@ export default class NumberInput extends Component {
     // console.log(key);
 
     // to use array inside of array, has to be "array[array]="
-    primaryId=JSON.stringify(primaryId);
-    storeValue[key]=JSON.stringify(numberFromInput);
+    // primaryId=JSON.stringify(primaryId);
+    storeValue[key]=numberFromInput;
+    storeValue=JSON.stringify(storeValue);
 
     // Store the data
-    AsyncStorage.getItem(primaryId,(err,value)=>{
-      console.log(primaryId+', '+value);
-      AsyncStorage.setItem(primaryId, value+=(storeValue),()=>{
-        AsyncStorage.getItem(primaryId, (err, result) => {
-          console.log(result);
+    let existingValue= await AsyncStorage.getItem(primaryId);
+    if(existingValue===null){
+      await AsyncStorage.setItem(primaryId,storeValue);
+      await AsyncStorage.getItem(primaryId,(err,value)=>{
+        console.log(value);
+      });
+    }else{
+      AsyncStorage.setItem(primaryId,existingValue,()=>{
+        AsyncStorage.mergeItem(primaryId, storeValue,()=>{
+          AsyncStorage.getItem(primaryId,(err,result)=>{
+            console.log(result);
+          });
         });
       });
-    });
+      // await AsyncStorage.setItem(primaryId,existingValue+=storeValue);
+      // AsyncStorage.getItem(primaryId,(err,result)=>{
+      //   console.log(result);
+      // });
+
+
+    }
 
 
     console.log(primaryId+', '+storeValue);
@@ -136,8 +150,17 @@ export default class NumberInput extends Component {
 							</View>
 
 							<View style={styles.modalButtonContainer}>
-								<TextButton style={styles.modalButton} onPress={(numberFromInput, unit) => this.storeData(this.state.enteredNumber, this.props.text)}><Text style={styles.modalButtonText}>OK</Text></TextButton>
-								<TextButton style={styles.modalButton} onPress={() => this.closeModal()}><Text style={styles.modalButtonText}>キャンセル</Text></TextButton>
+								<TextButton
+                  style={styles.modalButton}
+                  onPress={(numberFromInput, unit) => this.storeData(this.state.enteredNumber, this.props.text)}>
+                  <Text style={styles.modalButtonText}>OK</Text>
+                </TextButton>
+
+								<TextButton
+                  style={styles.modalButton}
+                  onPress={() => this.closeModal()}>
+                  <Text style={styles.modalButtonText}>キャンセル</Text>
+                </TextButton>
 							</View>
 
 						</View>
