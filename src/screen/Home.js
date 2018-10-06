@@ -17,6 +17,10 @@ import HeaderDate from '../component/HeaderDate';
 
 export default class Home extends React.Component {
 
+  componentDidMount() {
+    let pageIndex=0;
+  }
+
 
   // get date as for primary key
   state = {
@@ -24,10 +28,10 @@ export default class Home extends React.Component {
     year: new Date().getFullYear(),
     monthDay: (new Date().getMonth()+1)+'.'+new Date().getDate(),
     dayOfWeek: ["SUN","MON","TUE","WED","THU","FRI","SAT"][new Date().getDay()],
-    pageIndex: 0,
   };
 
 
+  /*---------------- For debugging methods --------------*/
   // remove this value on asyncstorage
   _removeItem(primaryId){
     AsyncStorage.removeItem(primaryId);
@@ -55,7 +59,6 @@ export default class Home extends React.Component {
     if(value!=null){
       console.log(value);
     }
-
   }
 
   async _getStorageValue(primaryId){
@@ -77,6 +80,14 @@ export default class Home extends React.Component {
       });
     });
   }
+  /*--------------- End 0f For debugging methods -------------*/
+
+
+
+  /*------------- go to the page day before -------------*/
+  async _goToDayBefore(pageIndex){
+      
+  }
 
 
 
@@ -88,19 +99,6 @@ export default class Home extends React.Component {
       let primaryId=JSON.stringify(this.state.today),
           beginningOfMounth=new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           endOfMounth=new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-
-      // initially retrieve value that already existing when openning screen
-      AsyncStorage.getItem(primaryId, (err, value) => {
-        if(value!==null){
-          let parsedValue=JSON.parse(value);
-          this.setState({
-            initialWeigth: parsedValue.weight,
-            initialInnerFat: parsedValue.innerFat
-          });
-        }
-      });
-
-      // console.log(this.state.initialWeigth+', '+this.state.initialInnerFat);
 
 
 
@@ -138,13 +136,13 @@ export default class Home extends React.Component {
                     <NumberInput
                       text={'体重'}
                       today={this.state.today}
-                      initialWeigth={this.state.initialWeigth}>
+                    >
                     </NumberInput>
 
                     <NumberInput
                       text={'体脂肪'}
                       today={this.state.today}
-                      initialInnerFat={this.state.initialInnerFat}>
+                    >
                     </NumberInput>
 
                 </View>

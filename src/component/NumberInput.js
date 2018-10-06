@@ -17,6 +17,26 @@ import TextButton from './TextButton';
 
 export default class NumberInput extends Component {
 
+  /*---------- display previous value if existing ----------*/
+  componentDidMount() {
+    let primaryId = JSON.stringify(this.props.today),
+        unit=this.props.text;
+
+    AsyncStorage.getItem(primaryId).then((value) => {
+      if (value !== null){
+        value=JSON.parse(value);
+        initialWeigth=value.weight;
+        initialInnerFat=value.innerFat;
+
+        if(unit==='体重'){
+          this.setState({enteredNumber: initialWeigth});
+        }else if(unit==='体脂肪'){
+          this.setState({enteredNumber: initialInnerFat});
+        }
+      }
+    }).done();
+  }
+
 
 	/*-------------- show or close modal --------------*/
 	state = {
