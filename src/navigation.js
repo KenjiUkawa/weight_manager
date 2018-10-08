@@ -1,41 +1,33 @@
 import { Navigation } from 'react-native-navigation';
 
 
-export const goDayBefore = () => Navigation.setRoot({
+export const goHome = () => Navigation.setRoot({
   root: {
-  	stack: {
-  	  children: [{
-  	  	component: {
-  	  	  name: 'DayBefore',
-  	  	  options: {
-						topBar: {
-							visible: false,
-        			drawBehind: true,
-        			animate: false
-						}
-					}
-  	  	},
-  	  }],
-  	}
+    stack: {
+      id: 'Home',
+      children: [
+        {
+          component: {
+            name: 'Home',
+          }
+        }
+    ],
+    }
   }
 });
 
 
-export const goBack = () => Navigation.setRoot({
+export const goToDayBefore = () => Navigation.setRoot({
   root: {
-  	stack: {
-  	  children: [{
-  	  	component: {
-  	  	  name: 'DayBefore',
-  	  	  options: {
-						topBar: {
-							visible: false,
-        			drawBehind: true,
-        			animate: false
-						}
-					}
-  	  	},
-  	  }],
-  	}
+    stack: {
+      id: 'DayBefore',
+      children: [
+        {
+          component: {
+            name: 'DayBefore',
+          }
+        }
+    ],
+    }
   }
 });

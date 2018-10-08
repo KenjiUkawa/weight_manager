@@ -7,9 +7,7 @@ import {
 	Modal,
 	AsyncStorage,
 } from 'react-native';
-// react-native-vector-icons
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
 import IconButton from './IconButton';
 import TextButton from './TextButton';
 
@@ -19,7 +17,7 @@ export default class NumberInput extends Component {
 
   /*---------- display previous value if existing ----------*/
   componentDidMount() {
-    let primaryId = JSON.stringify(this.props.today),
+    let primaryId = JSON.stringify(this.props.currentDay),
         unit=this.props.text;
 
     AsyncStorage.getItem(primaryId).then((value) => {
@@ -54,8 +52,8 @@ export default class NumberInput extends Component {
   /*-------------- Store values --------------*/
   async storeData(numberFromInput, unit){
 
-    // console.log(state.today+','+numberFromInput);
-    let primaryId = JSON.stringify(this.props.today),
+    // console.log(state.currentDay+','+numberFromInput);
+    let primaryId = JSON.stringify(this.props.currentDay),
         storeValue={},
         key='';
     if(unit==='体重'){

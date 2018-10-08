@@ -12,19 +12,23 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import NumberInput from '../component/NumberInput';
 import IconButton from '../component/IconButton';
 import HeaderDate from '../component/HeaderDate';
+import { goToDayBefore } from '../navigation'
 
 
 
 export default class Home extends React.Component {
 
-  componentDidMount() {
-    let pageIndex=0;
+  async componentDidMount() {
+    await AsyncStorage.setItem('pageIndex','0');
+    // await AsyncStorage.getItem('pageIndex',(err, value)=>{
+    //   console.log(value);
+    // });
   }
 
 
   // get date as for primary key
   state = {
-    today: new Date().getFullYear()+''+(new Date().getMonth()+1)+''+new Date().getDate(),
+    currentDay: new Date().getFullYear()+''+(new Date().getMonth()+1)+''+new Date().getDate(),
     year: new Date().getFullYear(),
     monthDay: (new Date().getMonth()+1)+'.'+new Date().getDate(),
     dayOfWeek: ["SUN","MON","TUE","WED","THU","FRI","SAT"][new Date().getDay()],
@@ -80,14 +84,45 @@ export default class Home extends React.Component {
       });
     });
   }
+
+  async _ckeckDayBefore(){
+    await AsyncStorage.getItem('pageIndex',(err,value)=>{
+      pageIndex=JSON.parse(value);
+      pageIndex--;
+      // console.log('pageIndex: '+pageIndex);
+    });
+
+    let today=new Date(),
+        dayBefore=new Date(new Date().setDate(new Date().getDate()+pageIndex)),
+        getYear=dayBefore.getFullYear(),
+        getMonthDay=(dayBefore.getMonth()+1)+'.'+dayBefore.getDate(),
+        getDayOfWeek=["SUN","MON","TUE","WED","THU","FRI","SAT"][dayBefore.getDay()];
+
+    // dayBefore=dayBfore.getFullYear()+''+(dayBfore.getMonth()+1)+''+dayBfore.getDate();
+    console.log('pageIndex: '+pageIndex);
+    console.log('pageIndex: '+dayBefore);
+    console.log(getYear+', '+getMonthDay+', '+getDayOfWeek);
+
+
+  }
   /*--------------- End 0f For debugging methods -------------*/
 
 
 
-  /*------------- go to the page day before -------------*/
+  /*--------------- Go to Day before -------------*/
   async _goToDayBefore(pageIndex){
-      
+    await AsyncStorage.getItem('pageIndex',(err,value)=>{
+      value=JSON.parse(value);
+      value--;
+      value=JSON.stringify(value);
+      AsyncStorage.setItem('pageIndex',value);
+    })
+
+    goToDayBefore();
+
   }
+
+
 
 
 
@@ -95,8 +130,8 @@ export default class Home extends React.Component {
     render() {
 
 
-      // Check AsyncStorage for value today
-      let primaryId=JSON.stringify(this.state.today),
+      // Check AsyncStorage for value currentDay
+      let primaryId=JSON.stringify(this.state.currentDay),
           beginningOfMounth=new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           endOfMounth=new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
@@ -112,12 +147,12 @@ export default class Home extends React.Component {
                     {/* Header */}
                     <View style={styles.headerContainer}>
 
-                        <IconButton>
+                        <IconButton onPress={()=>this._goToDayBefore()}>
                           <Icon name={"arrow-left-bold"} style={styles.arrow}></Icon>
                         </IconButton>
 
                         <HeaderDate
-                          today={this.state.today}
+                          currentDay={this.state.currentDay}
                           year={this.state.year}
                           monthDay={this.state.monthDay}
                           dayOfWeek={this.state.dayOfWeek}
@@ -135,13 +170,13 @@ export default class Home extends React.Component {
                 <View style={styles.main}>
                     <NumberInput
                       text={'体重'}
-                      today={this.state.today}
+                      currentDay={this.state.currentDay}
                     >
                     </NumberInput>
 
                     <NumberInput
                       text={'体脂肪'}
-                      today={this.state.today}
+                      currentDay={this.state.currentDay}
                     >
                     </NumberInput>
 
