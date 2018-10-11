@@ -35,6 +35,8 @@ export default class Home extends React.Component {
   };
 
 
+
+
   /*---------------- For debugging methods --------------*/
   // remove this value on asyncstorage
   _removeItem(primaryId){
@@ -93,7 +95,7 @@ export default class Home extends React.Component {
     });
 
     let today=new Date(),
-        dayBefore=new Date(new Date().setDate(new Date().getDate()+pageIndex)),
+        dayBefore=today(today.setDate(today.getDate()+pageIndex)),
         getYear=dayBefore.getFullYear(),
         getMonthDay=(dayBefore.getMonth()+1)+'.'+dayBefore.getDate(),
         getDayOfWeek=["SUN","MON","TUE","WED","THU","FRI","SAT"][dayBefore.getDay()];
@@ -147,7 +149,15 @@ export default class Home extends React.Component {
                     {/* Header */}
                     <View style={styles.headerContainer}>
 
-                        <IconButton onPress={()=>this._goToDayBefore()}>
+                        <IconButton
+                          onPress={() => {
+                            Navigation.push(this.props.componentId, {
+                              component: {
+                                name: 'DayBefore',
+                              }
+                            });
+                          }}
+                        >
                           <Icon name={"arrow-left-bold"} style={styles.arrow}></Icon>
                         </IconButton>
 

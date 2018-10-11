@@ -20,6 +20,8 @@ export default class NumberInput extends Component {
     let primaryId = JSON.stringify(this.props.currentDay),
         unit=this.props.text;
 
+    console.log('NumberInput->primaryId: '+primaryId);
+
     AsyncStorage.getItem(primaryId).then((value) => {
       if (value !== null){
         value=JSON.parse(value);

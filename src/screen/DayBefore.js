@@ -16,60 +16,30 @@ import { goHome, goToDayBefore } from '../navigation'
 
 
 
+
 export default class DayBefore extends React.Component {
 
+  constructor(props) {
+    super(props);
+    // Although dont set state below it's needed to setState
+    this.state = {
+    };
+    // must bind function to set state in componentDidMount otherwise get undefind
+    this._getPageIndex=this._getPageIndex.bind(this);
+  }
 
+  componentDidMount(){
+    this._getPageIndex();
+  }
 
-  /*---------------- For debugging methods --------------*/
-  // remove this value on asyncstorage
-  _removeItem(primaryId){
-    AsyncStorage.removeItem(primaryId);
-    AsyncStorage.getItem(primaryId,(err,result)=>{
-      console.log(result);
+  async _getPageIndex(){
+    // test setting value '-1'. remove later one line below
+    await AsyncStorage.setItem('pageIndex','-1');
+    await AsyncStorage.getItem('pageIndex',(err,value)=>{
+      value=JSON.parse(value);
+      this.setState({'pageIndex': value});
     });
   }
-
-  _multiGetItem(){
-    AsyncStorage.getAllKeys((err, keys) => {
-      AsyncStorage.multiGet(keys, (err, stores) => {
-        stores.map((result, i, store) => {
-          // get at each store's key/value so you can work with it
-          let key = store[i][0];
-          let value01 = store[i][1];
-
-          console.log(key+', '+value01);
-        });
-      });
-    });
-  }
-
-  _getItem(primaryId){
-    const value=AsyncStorage.getItem(primaryId);
-    if(value!=null){
-      console.log(value);
-    }
-  }
-
-  async _getStorageValue(primaryId){
-    var value = await AsyncStorage.getItem(primaryId);
-    console.log(value);
-  }
-
-  _getItemYesterday(primaryId){
-    AsyncStorage.getItem(primaryId,(err, value) => {
-      obj = JSON.parse(value);
-      console.log(obj.weight);
-    });
-  }
-
-  async _ckeckItem(primaryId){
-    await AsyncStorage.getItem(primaryId,(err, values) => {
-      values.map((values, i, value) => {
-        console.log(value[i][0]+', '+value[i][1]);
-      });
-    });
-  }
-  /*--------------- End 0f For debugging methods -------------*/
 
 
 
@@ -91,41 +61,30 @@ export default class DayBefore extends React.Component {
 
 
 
-    async render() {
+    render() {
 
+      console.log(this.state.pageIndex);
 
-      let pageIndex;
-
-      await AsyncStorage.getItem('pageIndex',(err,value)=>{
-        if(value!==null){
-          pageIndex=JSON.parse(value);
-        }else{
-          goHome();
-        }
-      });
-
-      let today=new Date(),
-          dayBefore=new Date(new Date().setDate(new Date().getDate()+pageIndex)),
+      let dayBefore=new Date(new Date().setDate(new Date().getDate()+this.state.pageIndex)),
           getYear=dayBefore.getFullYear(),
           getMonthDay=(dayBefore.getMonth()+1)+'.'+dayBefore.getDate(),
-          getDayOfWeek=["SUN","MON","TUE","WED","THU","FRI","SAT"][dayBefore.getDay()];
+          getDayOfWeek=["SUN","MON","TUE","WED","THU","FRI","SAT"][dayBefore.getDay()],
+          primaryId=dayBefore.getFullYear()+''+(dayBefore.getMonth()+1)+''+dayBefore.getDate();
 
-      // console.log('pageIndex: '+pageIndex);
-      // console.log('pageIndex: '+dayBefore);
-      // console.log(getYear+', '+getMonthDay+', '+getDayOfWeek);
+      console.log('dayBefore: '+dayBefore);
+      console.log(getYear+', '+getMonthDay+', '+getDayOfWeek);
+      console.log('primaryId: '+primaryId);
 
-      this.setState({
-        currentDay: JSON.stringify(dayBefore),
+      // set state again
+      this.state = {
+        pageIndex:this.state.pageIndex,
+        currentDay: primaryId,
         year: getYear,
         monthDay: getMonthDay,
         dayOfWeek: getDayOfWeek,
-      });
+      };
 
-
-      console.log('pageIndex: '+pageIndex);
-      console.log('pageIndex: '+this.state.currentDay);
-      console.log(this.state.year+', '+this.state.monthDay+', '+this.state.dayOfWeek);
-
+      console.log('currentDay: '+this.state.currentDay);
 
 
         return (
@@ -138,7 +97,15 @@ export default class DayBefore extends React.Component {
                     {/* Header */}
                     <View style={styles.headerContainer}>
 
-                        <IconButton onPress={()=>this._goToDayBefore(pageIndex)}>
+                        <IconButton
+                          onPress={() => {
+                            Navigation.push(this.props.componentId, {
+                              component: {
+                                name: 'DayBefore',
+                              }
+                            });
+                          }}
+                        >
                           <Icon name={"arrow-left-bold"} style={styles.arrow}></Icon>
                         </IconButton>
 
@@ -150,7 +117,7 @@ export default class DayBefore extends React.Component {
                         />
 
                         <IconButton>
-                          <Icon name={"arrow-right-bold"} style={styles.arrow}></Icon>
+                          <Icon name={"arrow-right-bold"} style={styles.arrowOff}></Icon>
                         </IconButton>
 
                     </View>
@@ -184,26 +151,6 @@ export default class DayBefore extends React.Component {
                     <Icon name={'tune'} style={styles.buttonIcon}></Icon>
                   </IconButton>
 
-
-                </View>
-
-                <View style={styles.systemButtonContainer}>
-
-                  <IconButton onPress={()=>this._removeItem(primaryId)}>
-                    <Icon name={'delete-outline'} style={styles.systemButtonIcon}></Icon>
-                  </IconButton>
-
-                  <IconButton onPress={()=>this._multiGetItem()}>
-                    <Icon name={'playlist-check'} style={styles.systemButtonIcon}></Icon>
-                  </IconButton>
-
-                  <IconButton onPress={()=>this._getItemYesterday(primaryId)}>
-                    <Icon name={'check'} style={styles.systemButtonIcon}></Icon>
-                  </IconButton>
-
-                  <IconButton onPress={()=>this._ckeckItem(primaryId)}>
-                    <Icon name={'format-list-numbers'} style={styles.systemButtonIcon}></Icon>
-                  </IconButton>
 
                 </View>
 
