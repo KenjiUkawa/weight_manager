@@ -113,12 +113,15 @@ export default class Home extends React.Component {
 
   /*--------------- Go to Day before -------------*/
   async _goToDayBefore(pageIndex){
-    await AsyncStorage.getItem('pageIndex',(err,value)=>{
-      value=JSON.parse(value);
-      value--;
-      value=JSON.stringify(value);
-      AsyncStorage.setItem('pageIndex',value);
-    })
+
+    value=await AsyncStorage.getItem('pageIndex');
+    console.log('original:'+value);
+    value=JSON.parse(value);
+    console.log('JSON.parse: '+value);
+    value--;
+    value=JSON.stringify(value);
+    console.log('JSON.stringify: '+value);
+    await AsyncStorage.setItem('pageIndex',value);
 
     goToDayBefore();
 

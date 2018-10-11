@@ -21,25 +21,26 @@ export default class DayBefore extends React.Component {
 
   constructor(props) {
     super(props);
-    // Although dont set state below it's needed to setState
+    // Must set initial state if processing setState in componentDidMount
     this.state = {
+      pageIndex: [],
     };
-    // must bind function to set state in componentDidMount otherwise get undefind
-    this._getPageIndex=this._getPageIndex.bind(this);
   }
 
-  componentDidMount(){
-    this._getPageIndex();
+  // Must set initial vale in state if using setState in componentDidMount.
+  async componentDidMount(){
+    // one line below is to test this page
+    // await AsyncStorage.setItem('pageIndex','-1')
+    // .then(async ()=>{
+      await AsyncStorage.getItem('pageIndex')
+      .then((value)=>{
+        value=JSON.parse(value);
+        this.setState({'pageIndex': value});
+      });
+    // });
+
   }
 
-  async _getPageIndex(){
-    // test setting value '-1'. remove later one line below
-    await AsyncStorage.setItem('pageIndex','-1');
-    await AsyncStorage.getItem('pageIndex',(err,value)=>{
-      value=JSON.parse(value);
-      this.setState({'pageIndex': value});
-    });
-  }
 
 
 
@@ -85,6 +86,7 @@ export default class DayBefore extends React.Component {
       };
 
       console.log('currentDay: '+this.state.currentDay);
+      console.log('pageIndex: '+this.state.pageIndex);
 
 
         return (
@@ -117,7 +119,7 @@ export default class DayBefore extends React.Component {
                         />
 
                         <IconButton>
-                          <Icon name={"arrow-right-bold"} style={styles.arrowOff}></Icon>
+                          <Icon name={"arrow-right-bold"} style={styles.arrow}></Icon>
                         </IconButton>
 
                     </View>
